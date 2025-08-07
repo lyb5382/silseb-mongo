@@ -25,8 +25,8 @@ router.post('/', async (req, res) => {
 //select all
 router.get('/', async (req, res) => {
     try {
-        const chars = await Char.find()
-        res.status(200).json({ message: "전체 캐릭터 불러오기", chars })
+        const post = await Post.find()
+        res.status(200).json({ message: "전체 포스트 불러오기", post })
     } catch (error) {
         res.status(500).json({ message: "server error", error })
     }
@@ -34,10 +34,10 @@ router.get('/', async (req, res) => {
 //select
 router.get('/:id', async (req, res) => {
     try {
-        const charId = req.params.id
-        const char = await Char.findById(charId)
-        if (!char) return res.status(404).json({ message: "해당 캐릭터 없음" })
-        res.status(200).json({ message: "해당 캐릭터 불러오기", char })
+        const postId = req.params.id
+        const post = await Post.findById(postId)
+        if (!post) return res.status(404).json({ message: "해당 포스트 없음" })
+        res.status(200).json({ message: "해당 포스트 불러오기", post })
     } catch (error) {
         res.status(500).json({ message: "server error", error })
     }
@@ -45,22 +45,24 @@ router.get('/:id', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
     try {
-        const { name, level, isOnline } = req.body
-        if (!name || typeof level !== 'number') {
-            return res.status(400).json({ message: "이름과 레벨을 입력하시오" })
+        const { title, content, author, isPublished, tags } = req.body
+        if (!title || !content) {
+            return res.status(400).json({ message: "제목과 내용을 입력하시오" })
         }
-        const updateChar = await Char.findByIdAndUpdate(
+        const updatePost = await Post.findByIdAndUpdate(
             req.params.id,
             {
-                name,
-                level,
-                isOnline: isOnline ?? false
+                title,
+                content,
+                author,
+                isPublished: isPublished ?? false,
+                tags
             }, {
-                new: true, runValidators: true
-            }
+            new: true, runValidators: true
+        }
         )
-        if (!updateChar) return res.status(404).json({ message: "캐릭터 없음" })
-        res.status(200).json({ message: "캐릭터 수정 완료", char: updateChar })
+        if (!updatePost) return res.status(404).json({ message: "포스트 없음" })
+        res.status(200).json({ message: "포스트 수정 완료", char: updatePost })
     } catch (error) {
         res.status(500).json({ message: "server error", error })
     }
@@ -68,11 +70,11 @@ router.put('/:id', async (req, res) => {
 
 router.delete('/:id', async (req, res) => {
     try {
-        const charId = req.params.id
-        const deleteChar = await Char.findByIdAndDelete(charId)
-        if (!deleteChar) return res.status(404).json({ message: "캐릭터 없음" })
-        const chars = await Char.find()
-        res.status(200).json({ message: "삭제 완료", chars })
+        const postId = req.params.id
+        const deletePost = await Post.findByIdAndDelete(postId)
+        if (!deletePost) return res.status(404).json({ message: "포스트 없음" })
+        const posts = await Post.find()
+        res.status(200).json({ message: "삭제 완료", posts })
     } catch (error) {
         res.status(500).json({ message: "server error", error })
     }
